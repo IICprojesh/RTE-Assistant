@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .key-vals-wrapper input {
+        width: 40%;
+    }
+
+    .icons {
+        cursor: pointer;
+
+    }
+
+    .primary-input {
+        width: 100%;
+    }
+
+    .input-wrapper {
+        width: 35%;
+    }
+
+
+</style>
+<div class="container">
+    <form method="post" class="mt-4">
+        <div class="mb-3">
+            <label for="student_folder_path" class="form-label font-weight-bold">Student Folder Path</label>
+            <input type="text" class="form-control primary-input" id="student_folder_path"
+                placeholder="Provide Folder Path" name="student_folder">
+        </div>
+
+        <h4 class="mt-5 font-weight-bold">Excel Sheet Names to be Compared</h4>
+        <div class="mb-3">
+            <div class="d-flex">
+
+                <div class="input-wrapper">
+                    <label for="sheet-1" class="form-label font-weight-bold">First Sheet Name</label>
+                    <input type="text" class="form-control primary-input" id="sheet-1" name="sheet-1" value="Grading Sheet">
+                </div>
+                <div class="input-wrapper ml-4">
+                    <label for="sheet-2" class="form-label font-weight-bold">Second Sheet Name</label>
+                    <input type="text" class="form-control primary-input" id="sheet-2" name="sheet-2" value="Result">
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <h6 class="mt-4 font-weight-bold">Cell values to be Compared for Respective Excel Sheets</h6>
+        <!-- student marks dictonary from start -->
+        <div class="form-group" id="keyvals">
+            <div class="key-vals-wrapper d-flex w-75 mb-3">
+                <input type="text" class="form-control" placeholder="cell values" name="key1">
+                <input type="text" class="form-control ml-4" placeholder="cell values" name="value1">
+
+                <span class="mt-2 ml-4 d-flex icons">
+                    <i class="fa-sharp fa-solid fa-plus" onclick="addField()"></i>
+                </span>
+
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mb-4">Submit</button>
+    </form>
+
+</div>
+{% endblock content %}

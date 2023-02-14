@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="container mt-3">
+    <form method="post" class="mt-4">
+        <h3>Field for Excel File Section </h3>
+        <div class="mb-3">
+            <label for="foldername" class="form-label">Folder Name</label>
+            <input type="text" class="form-control" id="filename" placeholder="Student Folder Name" name="foldername">
+        </div>
+
+        <div class="mb-3">
+            <label for="marks_infos" class="form-label">Marks Information</label>
+            <input type="text" class="form-control" id="filename" placeholder="marks information json"
+                name="marks_infos">
+        </div>
+
+        <button type="submit" class="btn btn-info">Submit</button>
+
+    </form>
+</div>
+
+{% endblock content %}
