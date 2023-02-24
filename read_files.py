@@ -133,18 +133,19 @@ class ReadFromExcel:
                 wb = openpyxl.load_workbook(file, data_only=True,read_only=True)
                 ws = wb[self.sheet_name]
                 marks_value_dict = {}
+                print(f"self.marks_dict: {self.marks_dict}")
                 for key, value in self.marks_dict.items():
                     # has used this try block to convert 0 string into integer
                     try:
+                        print(f"value: {value}")
+                        print(f"ws[value].value: {ws[value].value}")
                         marks_value_dict[key] = float(ws[value].value)
-                    except ValueError:
+                    except Exception:
                         print("inside except block")
                         marks_value_dict[key] = 0
                   
 
                 self.write_to_main_docs(student_id, marks_value_dict,student_name)
-            
-            
                 print(f"active workbook: {wb.active}")
                 wb.close()
                 if not self.is_group_coursework:
@@ -166,6 +167,7 @@ class ReadFromExcel:
             # used try block to check if the row number  of student is correct or not
             
             student_row_num,completion_percentage = self.excel_object.find_student_row_number(student_id)
+            print(f"student_row_num: {student_row_num}")
             print(f"completion_percentage: {completion_percentage}")
             # this code is to broadcast the percentage
             self.sse.publish({"percentage":completion_percentage},type='showPercent')

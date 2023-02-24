@@ -117,7 +117,6 @@ def home():
 
         except Exception as e:
             flash(str(e),"danger")
-            # return f"Start depth and end depth value must be a integer"
         finally:
             return redirect("/")    
 
