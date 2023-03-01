@@ -124,7 +124,7 @@ class ReadFromExcel:
         import re
         print(f"main folder is:",str(p))
         for file in p.rglob("*.xlsx"):
-            if re.match(r"\d+\s+[a-z A-Z]{5,20}.xlsx",file.name):
+            if re.match(r"\d+\s+[a-z A-Z.]+.xlsx",file.name):
 
                 print(f"excel file: {file}")
                 student_id = int(file.stem.split(" ")[0])
@@ -150,9 +150,6 @@ class ReadFromExcel:
                 wb.close()
                 if not self.is_group_coursework:
                     break
-            
-         
-
         if self.merge_excel:
             for file in p.rglob("*.pdf"):
                 merge_excel_sheet_to_pdf(str(p),excel_file=excel_file,pdf_file=file)

@@ -1,6 +1,5 @@
 from pathlib import Path
 import shutil
-import openpyxl
 
 def iterate_folder(folder_path, excel_sheet,cell_infos,sheet_name):
     path = Path(folder_path)
@@ -21,26 +20,16 @@ def copy_excel_sheet(excel_sheet,folder,cell_infos,sheet_name="Grading Sheet"):
     # extracting student name and student id
 
     student_infos = student_folder_info.split( )
-    student_id = student_infos[0]
     student_name = " ".join(student_infos[1:])
 
     shutil.copy(excel_sheet,folder)
     shutil.move(f"{folder}/{excel_file_name}",f"{folder}/{student_folder_info}{file_extension}")
-    excelFilePath = f"{folder}/{student_folder_info}{file_extension}"
 
 
     """
     code to insert student name and student id inside excel sheet file
     """
-    wb = openpyxl.load_workbook(excelFilePath,data_only=True)
-    ws = wb[sheet_name]
-    for key,value in cell_infos.items():
-        if key =="name":
-            ws[value] = student_name
-        else:
-            ws[value] = student_id
-    wb.close()
-    wb.save(excelFilePath)
+    
         
 
 def create_folder(file):

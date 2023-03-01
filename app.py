@@ -130,7 +130,7 @@ def add_excel_sheet():
     if request.method == "POST":
         print("inside excel sheet")
         sse.publish({"message":"loading"},type="activateLoader")
-        folder_name = request.form.get("studentFolder")
+        folder_name = request.form.get("student_folder")
         excel_sheet = request.form.get("excel_file")
         sheet_name = request.form.get("sheet_name")
         student_name_cell = request.form.get("name_cell_value")
