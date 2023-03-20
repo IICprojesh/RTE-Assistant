@@ -2,6 +2,9 @@ import openpyxl
 from pathlib import Path
 import os
 import logging
+import tempfile
+import shutil
+
 
 
 from win32com import client
@@ -10,13 +13,21 @@ win32_excel = client.Dispatch("Excel.Application")
 
 
 
-# setting the log handler
+
+# function to create a temp excel file and save it in temp directory
+def create_excel_in_temp(excel_file):
+    temp_excelfile_name = tempfile.NamedTemporaryFile(suffix=excel_file.filename,prefix="", delete=False)
+    excel_file.save(temp_excelfile_name.name)
+    return temp_excelfile_name
+
 
 
 
 class WriteToExcel:
     def __init__(self, file_name, sheet_name, start_depth, end_depth, column_start_range, column_end_range, student_id_column = "B") -> None:
         self.file_name = file_name
+        # create a excel file in temp location and save the sheet in that location
+        self.temp_excelfile_name = create_excel_in_temp(self.file_name)
         self.sheet_name = sheet_name
         self.start_depth = start_depth
         self.end_depth = end_depth
@@ -25,7 +36,7 @@ class WriteToExcel:
         self.iterating_range = [i for i in range(self.start_depth, self.end_depth+1)]
         self.student_id_column = student_id_column
         self.column_array_range = self.create_column_array()
-        self.work_book = openpyxl.load_workbook(self.file_name)
+        self.work_book = openpyxl.load_workbook(self.temp_excelfile_name.name)
         self.sheet = self.work_book[self.sheet_name]
         self.sheet_marks_position = self.create_sheet_marks_position()
         self.original_length_of_iterating_range = len(self.iterating_range)
@@ -83,14 +94,15 @@ class ReadFromExcel:
         self.merge_excel = merge_excel
         self.sse = sse
         self.is_group_coursework = isGroupCourseWork
+        self.desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
 
 
         # create a logger
-        desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+        # desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
         logging.basicConfig(encoding ='utf-8',level=logging.ERROR,format='%(levelname)s:%(message)s')
         self.logger = logging.getLogger(__name__)
 
-        ch = logging.FileHandler(filename = f'{desktop}/{Path(self.folder_path).stem}.log',mode='w')
+        ch = logging.FileHandler(filename = f'{self.desktop}/{Path(self.folder_path).stem}.log',mode='w')
         ch.setLevel(logging.ERROR)
         formatter = logging.Formatter('%(levelname)s - %(message)s')
         ch.setFormatter(formatter)
@@ -114,8 +126,13 @@ class ReadFromExcel:
                     continue
            
             self.read_from_excel_file(p)
+        # saving the rte provided excel sheet in the desktop location
+        print(f"worksheet: {self.excel_object.work_book}")
+        print(f"worksheet type: {type(self.excel_object.work_book)}")
+        print(f"worksheet name: {self.excel_object.file_name.filename}")
+        self.excel_object.temp_excelfile_name.close()
+        shutil.move(self.excel_object.temp_excelfile_name.name,os.path.join(self.desktop,self.excel_object.file_name.filename))
 
-       
             
     def read_from_excel_file(self,p):
         excel_file = None
@@ -173,7 +190,7 @@ class ReadFromExcel:
                     print(f"student_row_num: {student_row_num}")
                     if key in self.excel_object.sheet_marks_position:
                         self.excel_object.sheet[f"{self.excel_object.sheet_marks_position[key]}{student_row_num}"] = value
-                self.excel_object.work_book.save(self.excel_object.file_name)
+                self.excel_object.work_book.save(self.excel_object.temp_excelfile_name.name)
                 print(f"sucessfully saved file")
             else:
                 self.logger.error(f"Error in london met id of student {student_name} having id {student_id}")

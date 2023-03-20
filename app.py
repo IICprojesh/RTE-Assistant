@@ -49,7 +49,7 @@ def home():
     error = None
     if request.method=="POST":
         sse.publish({"message":"true"},type='activateModal')
-        excelFileName = request.form.get("filename").strip()
+        excelFile = request.files["excel_file"]
         finalSheetName = request.form.get("final_sheet_name").strip()
         startDepth = request.form.get("start_depth").strip()
         endDepth = request.form.get("end_depth").strip()
@@ -69,8 +69,7 @@ def home():
         # validating the input fields
 
         try:
-            errors_info = validator_engine(excelFileName = (validate_file,excelFileName),
-                                            studentFolder = (validate_folder,studentFolder),
+            errors_info = validator_engine(studentFolder = (validate_folder,studentFolder),
                                             startDepth = (validate_integer,startDepth),
                                             endDepth = (validate_integer,endDepth),
                                              )
@@ -84,7 +83,7 @@ def home():
             # inatilzing a class for a write to excel file
             print("initilizing class now")
             write_excel = WriteToExcel(
-                file_name=excelFileName,
+                file_name=excelFile,
                 sheet_name=finalSheetName,
                 start_depth=int(startDepth),
                 end_depth=int(endDepth),
@@ -131,18 +130,9 @@ def add_excel_sheet():
         print("inside excel sheet")
         sse.publish({"message":"loading"},type="activateLoader")
         folder_name = request.form.get("student_folder")
-        excel_sheet = request.form.get("excel_file")
-        sheet_name = request.form.get("sheet_name")
-        student_name_cell = request.form.get("name_cell_value")
-        student_id_cell = request.form.get("id_cell_value")
-
-        cell_infos = {"name":student_name_cell,"id":student_id_cell}
-
-        print(f"cell_infos",cell_infos)
-        print(f"sheet_name",sheet_name)
-
-
-        iterate_folder(folder_name,excel_sheet,cell_infos,sheet_name)
+        excel_sheet = request.files["excel_file"]
+        print(f"excel_sheet: {excel_sheet}")
+        iterate_folder(folder_name,excel_sheet)
         return redirect("/add_excel_sheet")
     return render_template("add_excel_sheet.html")
 

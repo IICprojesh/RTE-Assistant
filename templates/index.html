@@ -19,11 +19,7 @@
 </style>
 <div class="container">
 
-  <form method="post" class="mt-4">
-
-
-
-
+  <form method="post" enctype="multipart/form-data" class="mt-4">
     <h3>Field for RTE Provided Excel File</h3>
     <!--start of field to check whether it is group coursework or not -->
     <div class="form-check">
@@ -35,12 +31,13 @@
     <!--end of field to check whether it is group coursework or not -->
 
     <div class="mb-3 mt-4">
-      <label for="filename" class="form-label">File Name</label>
-      <input type="text" class="form-control primary-input" id="filename" placeholder="Filename Here" name="filename"
-        required>
+        <label for="excel_file" class="form-label">Select the Excel File Sheet Provided by RTE</label>
+        <div>
+            <input type="file" name="excel_file" id="excel_file"
+                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3 mt-3">
       <label for="sheetname" class="form-label">Sheet Name</label>
       <input type="text" class="form-control primary-input" id="sheetname" placeholder="Sheet Name"
         name="final_sheet_name" required>
