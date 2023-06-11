@@ -141,7 +141,7 @@ class ReadFromExcel:
         import re
         print(f"main folder is:",str(p))
         for file in p.rglob("*.xlsx"):
-            if re.match(r"\d+\s+[a-z A-Z.]+.xlsx",file.name):
+            if re.match(r"\d+\s+[a-z A-Z. ()]+.xlsx",file.name):
 
                 print(f"excel file: {file}")
                 student_id = int(file.stem.split(" ")[0])
