@@ -12,6 +12,7 @@ from insert_student_marks import handle_insert_student_marks
 from helper_function import extract_input_values_from_client_input
 from marks_reconciler import reconcile_sheets_marks
 from validators import validate_file, validate_folder,validate_integer, validator_engine
+from execute_pdf import handler_pdf
 
 
 
@@ -169,6 +170,36 @@ def reconcile_marks():
 
     return render_template("marks_reconcilation.html")
 
+
+
+# pdf merge handler route
+@app.route('/pdf_handler',methods = ["GET","POST"])
+def pdf_handler():
+    if request.method == "POST":
+        print("inside post reuest")
+        sse.publish({"message":"loading"},type="activateLoader")
+        folder_name = request.form.get("foldername")
+        sheet_name = request.form.get("sheetname")
+        orientation = int(request.form.get("orientation"))
+        papersize = int(request.form.get("papersize"))
+        handler_pdf(folder_name, sheet_name, orientation, papersize)
+
+    return render_template("pdf_handler.html")
+
+
+# pdf delete handler route
+@app.route('/pdf_delete_handler',methods = ["GET","POST"])
+def pdf_delete_handler():
+    if request.method == "POST":
+        print("inside post reuest")
+        sse.publish({"message":"loading"},type="activateLoader")
+        folder_name = request.form.get("foldername")
+        sheet_name = request.form.get("sheetname")
+        orientation = int(request.form.get("orientation"))
+        papersize = int(request.form.get("papersize"))
+        handler_pdf(folder_name, sheet_name, orientation, papersize)
+
+    return render_template("pdf_delete_handler.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

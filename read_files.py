@@ -8,7 +8,6 @@ import shutil
 
 
 from win32com import client
-from execute_pdf import merge_excel_sheet_to_pdf
 win32_excel = client.Dispatch("Excel.Application")
 
 

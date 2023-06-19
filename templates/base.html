@@ -75,6 +75,14 @@
                         <a class="nav-link" href="{{ url_for('reconcile_marks') }}">Marks Reconciler</a>
                     </li>
 
+                    <li class="nav-item ml-4">
+                        <a class="nav-link" href="{{ url_for('pdf_handler') }}">PDF Merge Handler</a>
+                    </li>
+
+                    <li class="nav-item ml-4">
+                        <a class="nav-link" href="{{ url_for('pdf_delete_handler') }}">PDF Delete Handler</a>
+                    </li>
+
 
                 </ul>
 
@@ -144,73 +152,70 @@
         </ul>
         {% endif %}
         {% endwith %}
+        <!-- end of  html code for dismissable alert  -->
+
+
+        {% if error %}
+        <p class="error text-danger"><strong>Error:</strong> {{ error }}
+            {% endif %}
+
+            {% block content%}{% endblock content%}
     </div>
-    <!-- end of  html code for dismissable alert  -->
+
+    <script>
+        // javascript for the modal controlling
+        var source = new EventSource("{{ url_for('sse.stream') }}");
+
+        source.addEventListener('activateModal', function (event) {
+            console.log("inside the flask ssh")
+            let status = JSON.parse(event.data);
+            if (status.message == 'true') {
+                console.log("inside true condition")
+                $('#myModal').modal('show')
+            }
+        });
+        let modalHead = document.querySelector(".modal-body")
+        source.addEventListener('showInfo', function (event) {
+            console.log("inside student information form")
+            let ww = modalHead.firstElementChild
+            let studentvalue = JSON.parse(event.data)
+            console.log("studentvalue", studentvalue.name)
+            ww.innerText = ""
+            ww.innerText = studentvalue.name
+        });
+        let percentTag = document.querySelector("#percent")
+        source.addEventListener('showPercent', function (event) {
+            let percentValue = JSON.parse(event.data)
+            console.log("percentValue", percentValue.percentage)
+            percentTag.innerText = percentValue.percentage
+
+        });
+
+        // code for diaplying the loader
+
+        source.addEventListener("activateLoader", function (event) {
+            let data = JSON.parse(event.data)
+            if (data.message == "loading") {
+                let modalLoader = document.getElementById("#loaderModal")
+                console.log("main modal", document.querySelector("#myModal"))
+                $("#loaderModal").modal("show")
+
+            }
+
+        })
 
 
-    {% if error %}
-    <p class="error text-danger"><strong>Error:</strong> {{ error }}
-        {% endif %}
-
-        {% block content%}{% endblock content%}
-
-        <script>
-            // javascript for the modal controlling
-            var source = new EventSource("{{ url_for('sse.stream') }}");
-
-            source.addEventListener('activateModal', function (event) {
-                console.log("inside the flask ssh")
-                let status = JSON.parse(event.data);
-                if (status.message == 'true') {
-                    console.log("inside true condition")
-                    $('#myModal').modal('show')
-                }
-            });
-            let modalHead = document.querySelector(".modal-body")
-            source.addEventListener('showInfo', function (event) {
-                console.log("inside student information form")
-                let ww = modalHead.firstElementChild
-                let studentvalue = JSON.parse(event.data)
-                console.log("studentvalue", studentvalue.name)
-                ww.innerText = ""
-                ww.innerText = studentvalue.name
-            });
-            let percentTag = document.querySelector("#percent")
-            source.addEventListener('showPercent', function (event) {
-                console.log("percentageDIV val", percentTag)
-                console.log("inside percentage sse")
-                console.log("data:", JSON.parse(event.data))
-                let percentValue = JSON.parse(event.data)
-                console.log("percentValue", percentValue.percentage)
-                percentTag.innerText = percentValue.percentage
-
-            });
-
-            // code for diaplying the loader
-
-            source.addEventListener("activateLoader", function (event) {
-                let data = JSON.parse(event.data)
-                if (data.message == "loading") {
-                    let modalLoader = document.getElementById("#loaderModal")
-                    console.log("main modal", document.querySelector("#myModal"))
-                    $("#loaderModal").modal("show")
-
-                }
-
-            })
+    </script>
 
 
-        </script>
+    <!-- javascript for form dynamism starts  -->
+    <script>
+        let parentContaier = document.querySelector("#keyvals")
+        let all_divs = parentContaier.getElementsByClassName('key-vals-wrapper')
+        console.log("alldivs", all_divs)
 
-
-        <!-- javascript for form dynamism starts  -->
-        <script>
-            let parentContaier = document.querySelector("#keyvals")
-            let all_divs = parentContaier.getElementsByClassName('key-vals-wrapper')
-            console.log("alldivs", all_divs)
-
-            function create_new_div(length) {
-                return `
+        function create_new_div(length) {
+            return `
       <input type="text" class="form-control" placeholder="" name="key${length + 1}">
           <input type="text" class="form-control ml-4" placeholder="" name="value${length + 1}">
           <span class="mt-2 ml-4 d-flex icons">
@@ -219,63 +224,63 @@
               </span>
 
       `
-            }
+        }
 
-            function create_span_element(oneLeft) {
-                if (oneLeft) {
-                    return `<span class="mt-2 ml-4 d-flex icons">
+        function create_span_element(oneLeft) {
+            if (oneLeft) {
+                return `<span class="mt-2 ml-4 d-flex icons">
               <i class="fa-sharp fa-solid fa-plus" onclick="addField()"></i>
               </span>
       `
-                }
-                else {
-                    return `<span class="mt-2 ml-4 d-flex icons">
+            }
+            else {
+                return `<span class="mt-2 ml-4 d-flex icons">
               <i class="fa-sharp fa-solid fa-plus" onclick="addField()"></i>
               <i class="fa-solid fa-xmark ml-3" onclick="removeFiled()"></i> 
               </span>
       `
-                }
+            }
+        }
+
+
+        // logic of function that adds the element
+        function addField() {
+            let all_divs = parentContaier.getElementsByClassName('key-vals-wrapper')
+            // remove the span element from the before adding a new one
+            let last_element = all_divs[all_divs.length - 1]
+            let span_tag = last_element.getElementsByTagName('span')[0]
+            span_tag.remove()
+            console.log("last_element", last_element)
+            let new_element = document.createElement("div")
+            new_element.classList.add("key-vals-wrapper", "d-flex", "w-75", "mb-3")
+            new_element.innerHTML = create_new_div(all_divs.length)
+            parentContaier.appendChild(new_element)
+
+        }
+        // logic of function that adds the element
+
+        function removeFiled() {
+            let all_divs = parentContaier.getElementsByClassName('key-vals-wrapper')
+            if (all_divs.length == 2) {
+                let second_last_element = all_divs[0]
+                second_last_element.insertAdjacentHTML('beforeend', create_span_element(true))
+                let last_element = all_divs[1]
+                last_element.remove()
+
             }
 
-
-            // logic of function that adds the element
-            function addField() {
-                let all_divs = parentContaier.getElementsByClassName('key-vals-wrapper')
-                // remove the span element from the before adding a new one
+            else if (all_divs.length > 2) {
+                let second_last_element = all_divs[all_divs.length - 2]
+                second_last_element.insertAdjacentHTML('beforeend', create_span_element(false))
                 let last_element = all_divs[all_divs.length - 1]
-                let span_tag = last_element.getElementsByTagName('span')[0]
-                span_tag.remove()
-                console.log("last_element", last_element)
-                let new_element = document.createElement("div")
-                new_element.classList.add("key-vals-wrapper", "d-flex", "w-75", "mb-3")
-                new_element.innerHTML = create_new_div(all_divs.length)
-                parentContaier.appendChild(new_element)
+                last_element.remove()
+
 
             }
-            // logic of function that adds the element
 
-            function removeFiled() {
-                let all_divs = parentContaier.getElementsByClassName('key-vals-wrapper')
-                if (all_divs.length == 2) {
-                    let second_last_element = all_divs[0]
-                    second_last_element.insertAdjacentHTML('beforeend', create_span_element(true))
-                    let last_element = all_divs[1]
-                    last_element.remove()
-
-                }
-
-                else if (all_divs.length > 2) {
-                    let second_last_element = all_divs[all_divs.length - 2]
-                    second_last_element.insertAdjacentHTML('beforeend', create_span_element(false))
-                    let last_element = all_divs[all_divs.length - 1]
-                    last_element.remove()
-
-
-                }
-
-            }
-        </script>
-        <!-- javascript for form dynamism ends  -->
+        }
+    </script>
+    <!-- javascript for form dynamism ends  -->
 </body>
 
 </html>

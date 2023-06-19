@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post" class="mt-4">
+    <div class="d-flex">
+        <div class="form-group">
+            <label for="folderpath">Folder Path</label>
+            <input type="text" class="form-control" id="folderpath" placeholder="Main folder path" name="foldername">
+        </div>
+
+    </div>
+    <div class="d-flex">
+        <div class="form-group">
+            <label for="startpage">Start Page</label>
+            <input type="text" class="form-control" id="startpage" placeholder="Main folder path" name="startpage">
+        </div>
+        <div class="form-group">
+            <label for="endpage">End Page</label>
+            <input type="text" class="form-control" id="endpage" placeholder="Main folder path" name="endpage">
+        </div>
+
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+
+</form>
+{% endblock content %}

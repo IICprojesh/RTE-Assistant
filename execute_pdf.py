@@ -1,53 +1,90 @@
-import os
 from pathlib import Path
-from win32com import client
-from PyPDF2 import PdfMerger
+from helper_function import find_excel_sheet, find_pdf_file
+import os
 import pythoncom
+from PyPDF2 import PdfFileMerger
+from win32com import client
+import shutil
+
+
+def inilize_wincom32():
+    return client.Dispatch("Excel.Application",pythoncom.CoInitialize())
+
+
+def merge_temp_to_main_pdf(main_pdf, temp_pdf):
+
+# Create a PdfFileMerger object
+    merger = PdfFileMerger()
+
+    # Open the existing PDF
+    existing_pdf = open(main_pdf, 'rb')
+
+    # Open the PDF to be merged
+    pdf_to_merge = open(temp_pdf, 'rb')
+
+    # Add the existing PDF to the merger
+    merger.append(existing_pdf)
+
+    # Merge the PDF to be merged after page 1
+    merger.merge(1, pdf_to_merge)
+
+    # Write the merged PDF to a new file
+    merged_output = open(main_pdf, 'wb')
+    merger.write(merged_output)
+
+    # Close the input and output files
+    existing_pdf.close()
+    pdf_to_merge.close()
+    merged_output.close()
+
+    # delete the temp_pdf
+    os.remove(temp_pdf)
+
+
+
+def create_pdf_of_sheet(excel,excel_file, sheet_name, orientation, papersize):
+    workbook = excel.Workbooks.Open(excel_file)
+    try:
+        work_sheet = workbook.Worksheets[sheet_name]
+
+        print("inside orientation paper size", orientation)
+        print("inside papersize paper size", papersize)
+
+        work_sheet.PageSetup.Orientation = orientation
+        work_sheet.PageSetup.PaperSize = papersize
+
+        print("parent folder name",excel_file.parent)
+
+        temp_pdf_file_path = os.path.join((excel_file.parent),"demo.pdf")
+        work_sheet.ExportAsFixedFormat(0, temp_pdf_file_path)
+
+        workbook.Saved = True
+        workbook.Close()
+        excel.Quit()
+        return temp_pdf_file_path
+    except Exception as e:
+        print(f"error has occured: {e}")
+  
 
 
 
 
-def merge_excel_sheet_to_pdf(student_folder_path,excel_file,pdf_file):
-    print("merging excel sheet to pdf")
-    pythoncom.CoInitialize()
-    excel = client.Dispatch("Excel.Application")
+def handler_pdf(path, sheet_name, orientation, papersize):
+    parent_path = Path(rf"{path}")
+    excel = inilize_wincom32()
+    for dir in parent_path.iterdir():
+        
+        excel_file = find_excel_sheet(dir)
+        pdf_file = find_pdf_file(dir)
 
-    print(f"excel is: {excel}")
-    path_to_pdf = f"{student_folder_path}/sample.pdf"
-    # excel = client.Dispatch("Excel.Application")
-    print(f"student_folder_path: {student_folder_path}")
-    # print(f"excel_file: {excel_file}")
-    # print(f"pdf_file: {pdf_file}")
-    print(f"path_to_pdf: {path_to_pdf}")
+        if excel_file:
+            temp_pdf_file = create_pdf_of_sheet(excel,excel_file,sheet_name,orientation,papersize)
+        if pdf_file:
+            merge_temp_to_main_pdf(pdf_file, temp_pdf_file)
+     
 
-    # creating a pdf file from a excel sheeet
-   
-    print(f"excel file: {excel_file}")
-    # excel.Workbooks.Close(excel_file)
-    sheets = excel.Workbooks.Open(excel_file)
-    print(f"sheets: {sheets}")
-    work_sheet = sheets.Worksheets["Result"]
-    print(f"work_sheet: {work_sheet}")
-    work_sheet.ExportAsFixedFormat(0, path_to_pdf)
-    print(f"path_to_pdf: {path_to_pdf}")
-    print(f"sucessfully created pdf from  excel file")
-    sheets.Close()
-    
 
-    # merging that pdf sheet to the main pdf file
-    print("inside pdf meager")
-    
-    pdf_merger = PdfMerger()
-    print(f"pdf_merger: {pdf_merger}")
-    pdf_merger.append(pdf_file,import_outline=False)
-    pdf_merger.merge(1,path_to_pdf)
 
-    with Path(pdf_file).open("wb") as output_file:
-        pdf_merger.write(output_file)
-        pdf_merger.close()
-        print(f"sucessfully merged a pdf file {pdf_file}")
 
-    os.remove(path_to_pdf)
-    print(f"sucessfully deleted pdf file for student {pdf_file}")
-    
+
 

@@ -23,7 +23,11 @@ def find_excel_sheet(each):
     find the excel file for the student folder and return it
     """
     for file in each.rglob("*.xlsx"):        
-        return file
+        if re.match(r"\d+\s+[a-z A-Z. ()]+.xlsx",file.name):
+            return file
+
+        else:
+            print(f"file not found for {file}")
 
 
 def find_pdf_file(each):
@@ -31,7 +35,8 @@ def find_pdf_file(each):
     find the pdf file for the student folder and return it
     """
     for file in each.rglob("*.pdf"):
-        return file
+        if re.match(r"\d+\s+[a-z A-Z. ()]+.pdf",file.name):
+            return file
 
 
 def iterate_student_folder(folder_path):
