@@ -164,7 +164,11 @@ def reconcile_marks():
         print(f"sheet_2: {sheet_2}")
         print(f"cell_values_dict: {cell_values_dict}")
         logger = initilize_logger(filename = Path(folder_name).stem)  # initilize the logger
+        import time
+        start = time.perf_counter()
         reconcile_sheets_marks(folder_name,sheet_1,sheet_2,cell_values_dict,logger)
+        end = time.perf_counter()
+        print(f"time taken to execute: {end-start}")
 
 
     return render_template("marks_reconcilation.html")
