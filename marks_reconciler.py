@@ -14,7 +14,6 @@ def validate_marks_between_sheets(excel,sheet_1,sheet_2,reconcile_dict,queue=Non
     for sheet_1_cell, sheet_2_cell in reconcile_dict.items():
         if not sheet1[sheet_1_cell].value == sheet2[sheet_2_cell].value:
             queue.put(f"Error in the excel sheet of student {student_name} Error cells!!  {sheet_1}: {sheet_1_cell}, {sheet_2}: {sheet_2_cell}")
-            # logger.error(f"Error in the excel sheet of student {student_name} Error cells!!  {sheet_1}: {sheet_1_cell}, {sheet_2}: {sheet_2_cell}")
     workbook.close()
             
 

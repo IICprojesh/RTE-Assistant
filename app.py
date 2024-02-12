@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, request, redirect
+from flask import Flask, flash, render_template, request, redirect, Response
 import os
 from read_files import WriteToExcel, ReadFromExcel
 import json
@@ -6,16 +6,22 @@ from time import time
 from flask_sse import sse
 from pathlib import Path
 import logging
+import json
 
 from insert_marking_template import iterate_folder
 from insert_student_marks import handle_insert_student_marks
-from helper_function import extract_input_values_from_client_input
+from helper_function import (extract_input_values_from_client_input, extract_values_from_ajax_request,
+                            open_excel_file_sheet, find_student_excel_file,
+                            generate_marks_dictonary)
 from marks_reconciler import reconcile_sheets_marks
-from validators import validate_file, validate_folder,validate_integer, validator_engine
+from validators import validate_folder,validate_integer, validator_engine
 
 
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
+
+app.json.sort_keys = False
 
 app.secret_key = "a secret key"
 
@@ -42,6 +48,33 @@ def initilize_logger(filename="no path provided"):
     logger.addHandler(ch)
     return logger
 
+
+@app.route('/create_marks_dictonary',methods=['GET', 'POST'])
+def create_marks_dictonary():
+    if request.method == "POST":
+        excelfile = request.files['excelFile']
+        
+        sheetname,startDepth,colStartRange,colEndRange,studentFolderName,studentMarkStartCell,studentMarkEndCell, studentSheetName  = extract_values_from_ajax_request(request.form)
+        rte_excel_file = open_excel_file_sheet(excelfile)
+        student_excel_file = find_student_excel_file(studentFolderName)
+        rte_excel_sheet = rte_excel_file[sheetname]
+        rte_excel_file
+        student_excel_sheet = student_excel_file[studentSheetName]
+        student_rte_churn, is_error = generate_marks_dictonary(rte_excel_sheet,student_excel_sheet,startDepth,colStartRange, colEndRange, studentMarkStartCell, studentMarkEndCell)
+
+        if is_error:
+            result = json.dumps({'result':student_rte_churn,'iserror':is_error})
+        else:
+            student_rte_churn = json.dumps(student_rte_churn,sort_keys=False)
+            result = json.dumps({'result':student_rte_churn,'iserror':is_error})
+            
+        rte_excel_file.close()
+        student_excel_file.close() 
+        return Response(result)
+
+
+
+ 
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -74,14 +107,12 @@ def home():
                                             endDepth = (validate_integer,endDepth),
                                              )
             
-            print(f"errors info: {errors_info}")
             for key in errors_info:
                 raise Exception(errors_info[key])
 
-            print(f"mergeExcelSheet, {mergeExcelSheet}")
             
             # inatilzing a class for a write to excel file
-            print("initilizing class now")
+            
             write_excel = WriteToExcel(
                 file_name=excelFile,
                 sheet_name=finalSheetName,
@@ -92,8 +123,8 @@ def home():
                 student_id_column=studentCol
                 )
 
+
             
-            print("initilizing ReadFromExcel")
 
             # inilatizing a class for a write to excel file
             read_student_directory = ReadFromExcel(
@@ -110,7 +141,6 @@ def home():
 
             read_student_directory.read_folder()
 
-            print(f"Time taken to run write to excel is {time()-init}")
 
             flash(f"Marks has been sucessfully written in the excel file","success")
 
@@ -127,11 +157,9 @@ def home():
 @app.route("/add_excel_sheet",methods = ["GET","POST"])
 def add_excel_sheet():
     if request.method == "POST":
-        print("inside excel sheet")
         sse.publish({"message":"loading"},type="activateLoader")
         folder_name = request.form.get("student_folder")
         excel_sheet = request.files["excel_file"]
-        print(f"excel_sheet: {excel_sheet}")
         iterate_folder(folder_name,excel_sheet)
         return redirect("/add_excel_sheet")
     return render_template("add_excel_sheet.html")
@@ -143,9 +171,6 @@ def insert_student_marks():
     if request.method=="POST":
         folder_name = request.form.get("foldername")
         marks_infos = json.loads(request.form.get("marks_infos"))
-
-        print(f"folder_name: {folder_name}")
-        print(f"marks_infos: {marks_infos}")
         handle_insert_student_marks(folder_name,marks_infos)
         return redirect("/insert_student_marks")
 
@@ -159,16 +184,11 @@ def reconcile_marks():
         sheet_1 = request.form.get("sheet-1")
         sheet_2 = request.form.get("sheet-2")
         cell_values_dict = extract_input_values_from_client_input(request.form)
-        print(f"folder_name: {folder_name}")
-        print(f"sheet_1: {sheet_1}")
-        print(f"sheet_2: {sheet_2}")
-        print(f"cell_values_dict: {cell_values_dict}")
         logger = initilize_logger(filename = Path(folder_name).stem)  # initilize the logger
         import time
         start = time.perf_counter()
         reconcile_sheets_marks(folder_name,sheet_1,sheet_2,cell_values_dict,logger)
         end = time.perf_counter()
-        print(f"time taken to execute: {end-start}")
 
 
     return render_template("marks_reconcilation.html")
