@@ -86,13 +86,16 @@ def extract_field_name_and_mark_cell_value_from_student_sheet(sheet, start_row, 
     is_error = False
     try:
         for cell_num in range(int(start_row[1:]),int(end_row[1:])+1):
-            row_index_name = sheet[f"{start_row[0]}{cell_num}"].value.strip()
-            print(f"row_index_name: {row_index_name}")
-            if re.match('^\d[\.\s]+\w+$',row_index_name):
-                row_index_name = " ".join(row_index_name.split('.')[1:]).strip()
+            try:
+                row_index_name = sheet[f"{start_row[0]}{cell_num}"].value.strip()
+                print(f"row_index_name: {row_index_name}")
+                if re.match('^\d[\.\s]+\w+$',row_index_name):
+                    row_index_name = " ".join(row_index_name.split('.')[1:]).strip()
 
-            print(f"sheet_column_name: {row_index_name}")
-            student_marks_dictonary[row_index_name] = f"{marks_cell}{cell_num}"
+                print(f"sheet_column_name: {row_index_name}")
+                student_marks_dictonary[row_index_name] = f"{marks_cell}{cell_num}"
+            except:
+                continue
     except Exception as e:
         is_error = True
         student_marks_dictonary = "Error in the cell range provided for Student Sheet"

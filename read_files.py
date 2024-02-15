@@ -37,7 +37,7 @@ class WriteToExcel:
         self.iterating_range = [i for i in range(self.start_depth, self.end_depth+1)]
         self.student_id_column = student_id_column
         self.column_array_range = self.create_column_array()
-        self.work_book = openpyxl.load_workbook(self.temp_excelfile_name.name)
+        self.work_book = openpyxl.load_workbook(self.temp_excelfile_name.name, data_only=True)
         self.sheet = self.work_book[self.sheet_name]
         self.sheet_marks_position = self.create_sheet_marks_position()
         self.original_length_of_iterating_range = len(self.iterating_range)
@@ -64,7 +64,10 @@ class WriteToExcel:
     
     def find_student_row_number(self, student_id):
         row_no = 0
+        print(f"self.iterating_range: {self.iterating_range}")
+        print(f"student_id is passed: {student_id}")
         for i in self.iterating_range:
+            print(f"student id value: {self.sheet[f'{self.student_id_column}{i}'].value}")
             if student_id == self.sheet[f"{self.student_id_column}{i}"].value:
                 row_no = i
                 self.iterating_range.remove(i)
