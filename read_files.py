@@ -64,10 +64,7 @@ class WriteToExcel:
     
     def find_student_row_number(self, student_id):
         row_no = 0
-        print(f"self.iterating_range: {self.iterating_range}")
-        print(f"student_id is passed: {student_id}")
         for i in self.iterating_range:
-            print(f"student id value: {self.sheet[f'{self.student_id_column}{i}'].value}")
             if student_id == self.sheet[f"{self.student_id_column}{i}"].value:
                 row_no = i
                 self.iterating_range.remove(i)
