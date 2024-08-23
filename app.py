@@ -73,10 +73,6 @@ def create_marks_dictonary():
         return Response(result)
 
 
-
- 
-
-
 @app.route("/", methods=['GET', 'POST'])
 def home():
     error = None
@@ -91,7 +87,6 @@ def home():
         studentCol = request.form.get("student_col").upper().strip()
         studentFolder = request.form.get("student_folder").strip()
         studentSheetName = request.form.get("student_sheet_name").strip()
-
 
         student_marks_dict = extract_input_values_from_client_input(request.form) # this function extracts the form values and return a dictonary required for making student marks dictonary
 
@@ -151,8 +146,6 @@ def home():
 
     return render_template("index.html", error=error)
        
-
-
 
 @app.route("/add_excel_sheet",methods = ["GET","POST"])
 def add_excel_sheet():
