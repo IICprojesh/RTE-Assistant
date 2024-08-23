@@ -67,14 +67,21 @@ def range_char(asci_value,start_depth):
 
 def arrange_order_on_similarities_between_rte_sheet_and_student_sheet(rte_dictonary,student_dictonary):
     student_rte_churn = dict()
+    print("rte_dictonary",rte_dictonary)
+    print("student_dictonary",student_dictonary)
     is_error = False
     try:
         for key in rte_dictonary:
             closest_value = get_close_matches(key, student_dictonary, n=1,cutoff=0.4)
+            print(f"closest_value of {key} is: {closest_value}")
             student_rte_churn[key] = student_dictonary[closest_value[0]]
+    except IndexError:
+       print("inside index error")
+       student_rte_churn[key] = ""
     except Exception as e:
         is_error=True
         student_rte_churn="Error in the RTE sheet and Student Sheet"
+        print("error is",e)
     
     return student_rte_churn, is_error
 
